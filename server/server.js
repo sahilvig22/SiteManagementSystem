@@ -17,7 +17,9 @@ app.use('/api/profile', require('./routes/api/profile'))
 app.use('/api/posts', require('./routes/api/posts'))
 
 
+// if(process.env.NODE_ENV === 'production'){
 
+// }
 
 
 const PORT = process.env.PORT || 5000
