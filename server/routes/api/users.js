@@ -31,7 +31,7 @@ router.post('/', [
 
     ///If it does exst then return an error message
     if (user) {
-      return res.status(400).json({ errors: [{ msg: 'User already exists' }] })
+      return res.status(409).json({ errors: [{ msg: 'User already exists' }] })
     }
 
     user = new User({ //Since the user doesn't exist, we create a new instance of it. By using the password in it, we'll encrypt the password
@@ -65,6 +65,10 @@ router.post('/', [
     res.status(500).send('Server Error')
   }
 
+})
+
+router.get('/', (req, res) => {
+  res.json('Hey')
 })
 
 module.exports = router
