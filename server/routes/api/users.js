@@ -2,12 +2,14 @@
 
 const express = require('express')
 const router = express.Router()
-const { check, validationResult } = require('express-validator')
+const { check, validationResult, Result } = require('express-validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const config = require('config')
+const auth = require('../../middleware/auth')
 
 const User = require('../../models/User')
+var ObjectId = require('mongodb').ObjectId;
 
 // @route     POST api/users
 // @desc      Register User
@@ -37,6 +39,7 @@ router.post('/', [
     user = new User({ //Since the user doesn't exist, we create a new instance of it. By using the password in it, we'll encrypt the password
       name, email, password
     })
+    console.log(user);
     // Encrypt password
     const salt = await bcrypt.genSalt(10)
 
@@ -67,8 +70,52 @@ router.post('/', [
 
 })
 
-router.get('/', (req, res) => {
-  res.json('Hey')
+// @route   PUT api/users/sites
+// @desc    Add a user site
+// @acess   Private
+
+router.put('/sites', [auth, [
+  check('location', 'Location is required').not().isEmpty(),
+  check('from', 'From date is required').not().isEmpty(),
+  check('to', 'To date is required').not().isEmpty()
+
+]], async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(400).json({ erros: errors.array() })
+  }
+
+  const { location, from, to } = req.body;
+  const newSite = { location, from, to }
+
+  try {
+    // let userProfile = await User.findOne({ user: req.user.id })
+
+    let user = await User.findById(req.user.id)
+
+    // If it does exst then return an error message
+    if (!user) {
+      return res.status(400).json({ errors: [{ msg: 'User does not exist' }] })
+    }
+
+    // res.json(user)
+    // res.json(user[0].sites);
+
+    // user[0].sites.unshift(newSite)
+    // await user[0].save();
+    // res.json(user[0])
+
+    // res.json(user.sites);
+
+    user.sites.unshift(newSite)
+    await user.save();
+    res.json(user)
+
+
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).json('Server Error')
+  }
 })
 
 module.exports = router
