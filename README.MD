@@ -76,7 +76,7 @@ Value   : logged in user's token
 
 and raw json in body, example :
 
-{
+{ 
   "location":"thesahilvig@gmail.com",
   "from":"10-02-2013",
   "to":"10-02-2020",
